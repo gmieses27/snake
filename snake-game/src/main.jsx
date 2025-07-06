@@ -16,6 +16,7 @@ const getRandomFood = (snake) => {
       y: Math.floor(Math.random() * (CANVAS_SIZE / GRID_SIZE))
     };
     // Make sure food doesn't spawn on the snake
+    // eslint-disable-next-line no-loop-func
     if (!snake.some(segment => segment.x === newFood.x && segment.y === newFood.y)) {
       break;
     }
@@ -28,6 +29,7 @@ const SnakeGame = () => {
   const [snake, setSnake] = useState(INITIAL_SNAKE);
   const [food, setFood] = useState(getRandomFood(INITIAL_SNAKE));
   const [direction, setDirection] = useState('RIGHT');
+  const [speed, setSpeed] = useState(180); // <-- Add this line
 
   // Helper to restart the game
   const restartGame = () => {
@@ -46,6 +48,8 @@ const SnakeGame = () => {
           case 'DOWN': head.y += 1; break;
           case 'LEFT': head.x -= 1; break;
           case 'RIGHT': head.x += 1; break;
+          case 'SHIFT': gameInterval = setInterval(moveSnake, 250); break;
+          default: return prevSnake; // No movement if direction is invalid
         }
 
         // Check wall collision
@@ -77,9 +81,9 @@ const SnakeGame = () => {
       });
     };
 
-    const gameInterval = setInterval(moveSnake, 180);
+    const gameInterval = setInterval(moveSnake, speed); // <-- Use speed here
     return () => clearInterval(gameInterval);
-  }, [direction, food]);
+  }, [direction, food, speed]); // <-- Add speed to dependencies
 
   // Draw on canvas
   useEffect(() => {
@@ -103,7 +107,7 @@ const SnakeGame = () => {
 
   // Handle keyboard input
   useEffect(() => {
-    const handleKeyPress = (e) => {
+    const handleKeyDown = (e) => {
       switch (e.key) {
         case 'ArrowUp':
           if (direction !== 'DOWN') setDirection('UP');
@@ -117,11 +121,21 @@ const SnakeGame = () => {
         case 'ArrowRight':
           if (direction !== 'LEFT') setDirection('RIGHT');
           break;
+        case 'Shift':
+          setSpeed(80); // Speed up when Shift is pressed
+          break;
         default: break;
       }
     };
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    const handleKeyUp = (e) => {
+      if (e.key === 'Shift') setSpeed(180); // Restore speed when Shift is released
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
   }, [direction]);
 
   return <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} />;
