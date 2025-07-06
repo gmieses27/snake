@@ -77,7 +77,7 @@ const SnakeGame = () => {
       });
     };
 
-    const gameInterval = setInterval(moveSnake, 200);
+    const gameInterval = setInterval(moveSnake, 180);
     return () => clearInterval(gameInterval);
   }, [direction, food]);
 
