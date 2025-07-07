@@ -48,7 +48,6 @@ const SnakeGame = () => {
           case 'DOWN': head.y += 1; break;
           case 'LEFT': head.x -= 1; break;
           case 'RIGHT': head.x += 1; break;
-          case 'SHIFT': gameInterval = setInterval(moveSnake, 250); break;
           default: return prevSnake; // No movement if direction is invalid
         }
 
